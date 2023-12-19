@@ -192,6 +192,7 @@ if __name__=='__main__':
  
     # Create an ADS1115 ADC (16-bit) instance.
     ina219 = INA219(addr=0x42)
+    
     while True:
         bus_voltage = ina219.getBusVoltage_V()             # voltage on V- (load side)
         shunt_voltage = ina219.getShuntVoltage_mV() / 1000 # voltage between V+ and V- across the shunt
