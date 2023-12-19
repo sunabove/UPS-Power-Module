@@ -49,6 +49,8 @@ class DisplayServer(object):
             top = 6
             power_mode_str = power_mode()
 
+            p = 0 
+
             if(self.ina != None):
                 bus_voltage = self.ina.getBusVoltage_V()        # voltage on V- (load side)
                 current = self.ina.getCurrent_mA()                # current in mA
@@ -67,6 +69,7 @@ class DisplayServer(object):
                 self.draw.text((4, top), power_mode_str + (" %.1fV")%bus_voltage + (" %.2fA")%(current/1000) + (" %2.0f%%")%p, font=self.font, fill=255)
             else:
                 self.draw.text((4, top), 'MODE: ' + power_mode_str, font=self.font, fill=255)
+            
             # set stats headers
             top = 14
             offset = 3 * 8
@@ -76,7 +79,7 @@ class DisplayServer(object):
 
             # set stats fields
             top = 22
-            power_watts = '%.1f' % power_usage()
+            power_watts = '%.1f' % p
             gpu_percent = '%02d%%' % int(round(gpu_usage() * 100.0, 1))
             cpu_percent = '%02d%%' % int(round(cpu_usage() * 100.0, 1))
             ram_percent = '%02d%%' % int(round(memory_usage() * 100.0, 1))

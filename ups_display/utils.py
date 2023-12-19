@@ -59,9 +59,9 @@ def power_usage():
     Returns:
         float: The current power usage in Watts.
     """
-    with open("/sys/devices/50000000.host1x/546c0000.i2c/i2c-6/6-0040/iio:device0/in_power0_input", 'r') as f:
-        return float(f.read()) / 1000.0
-
+    #with open("/sys/devices/50000000.host1x/546c0000.i2c/i2c-6/6-0040/iio:device0/in_power0_input", 'r') as f:
+    #    return float(f.read()) / 1000.0
+    return 0
     
 def cpu_usage():
     """Gets the Jetson's current CPU usage fraction
