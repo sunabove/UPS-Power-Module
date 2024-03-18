@@ -15,9 +15,14 @@ from ups_display import ina219
 from .utils import ip_address, power_mode, power_usage, cpu_usage, gpu_usage, memory_usage, disk_usage
 
 
-class DisplayServer(server.BaseHTTPRequestHandler):
+class DisplayServer(socketserver.ThreadingMixIn, server.HTTPServer):
+    allow_reuse_address = True
+    daemon_threads = True
+pass
+
+class DisplayHandler(server.BaseHTTPRequestHandler):
     
-    def __init__(self, web_address ):
+    def __init__( self ):
         super().__init__( web_address )
 
         adress = os.popen("i2cdetect -y -r 1 0x42 0x42 | egrep '42' | awk '{print $2}'").read()
@@ -162,6 +167,6 @@ pass # DisplayServer
 
 if __name__ == '__main__':
     address = ('', 8000)
-    server = DisplayServer( address )
+    server = DisplayServer( address, DisplayHandler )
     server.serve_forever()
 
