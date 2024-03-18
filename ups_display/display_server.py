@@ -168,6 +168,8 @@ class WebHandler(server.BaseHTTPRequestHandler):
 
             self.displayServer.set_text( text )
             return f'set text: \n\n{text}'
+        else :
+            return f"invalid url"
         pass
     pass
 
