@@ -8,6 +8,8 @@ import PIL.Image
 import PIL.ImageFont
 import PIL.ImageDraw
 
+import socketserver
+
 from http import server
 
 from ups_display import ina219
