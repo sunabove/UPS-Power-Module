@@ -52,6 +52,7 @@ class DisplayServer():
         Charge = False
         while self.stats_enabled:
 
+            self.draw.rectangle((0, 0, self.image.width, self.image.height), outline=0, fill=1)            
             self.draw.rectangle((0, 0, self.image.width, self.image.height), outline=0, fill=0)
 
             # set IP address
