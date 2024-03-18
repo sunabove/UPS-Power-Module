@@ -17,16 +17,15 @@ from ups_display import ina219
 from .utils import ip_address, power_mode, power_usage, cpu_usage, gpu_usage, memory_usage, disk_usage
 
 
-class DisplayServer(socketserver.ThreadingMixIn, server.HTTPServer):
+class WebServer(socketserver.ThreadingMixIn, server.HTTPServer):
     allow_reuse_address = True
     daemon_threads = True
-pass
+pass # WebServer
 
-class DisplayHandler(server.BaseHTTPRequestHandler):
+class DisplayServer():
     
     def __init__( self ):
-        super().__init__( web_address )
-
+        print( "Initing display server ..." , flush=1 )
         adress = os.popen("i2cdetect -y -r 1 0x42 0x42 | egrep '42' | awk '{print $2}'").read()
         if(adress=='42\n'):
             self.ina = ina219.INA219(addr=0x42)
@@ -45,6 +44,8 @@ class DisplayHandler(server.BaseHTTPRequestHandler):
         self.stats_thread = None
         self.stats_interval = 1.0
         self.enable_stats()
+
+        print( "Done initing display server" , flush=1 )
     pass
         
     def _run_display_stats(self):
@@ -143,13 +144,18 @@ class DisplayHandler(server.BaseHTTPRequestHandler):
         self.display.image(self.image)
         self.display.display()
     pass
+pass # DisplayServer
+
+class WebHandler(server.BaseHTTPRequestHandler):
+
+    displayServer = DisplayServer()
 
     def do_GET(self):
         if self.path == '/stats/on':
-            self.enable_stats()
+            self.displayServer.enable_stats()
             return "stats enabled"
         elif self.path == '/stats/off':
-            self.disable_stats()
+            self.displayServer.disable_stats()
             return "stats disabled"
         elif '/text/' in self.path :
             params = urllib.parse.parse_qs( self.path )
@@ -160,15 +166,16 @@ class DisplayHandler(server.BaseHTTPRequestHandler):
                 text = params[ "text" ][0]
             pass
 
-            self.set_text( text )
+            self.displayServer.set_text( text )
             return f'set text: \n\n{text}'
         pass
     pass
 
-pass # DisplayServer
+pass # WebHandler
 
 if __name__ == '__main__':
     address = ('', 8000)
-    server = DisplayServer( address, DisplayHandler )
+    server = WebServer( address, WebHandler )
     server.serve_forever()
+pass
 
