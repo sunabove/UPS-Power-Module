@@ -1,25 +1,17 @@
 import threading
-import time
-import os
-import urllib
-
 import Adafruit_SSD1306
+import time
 import PIL.Image
 import PIL.ImageFont
 import PIL.ImageDraw
-
-from http import server
-
-from ups_display import ina219
-
+from flask import Flask
 from .utils import ip_address, power_mode, power_usage, cpu_usage, gpu_usage, memory_usage, disk_usage
+from ups_display import ina219
+import os
 
-
-class DisplayServer(server.BaseHTTPRequestHandler):
+class DisplayServer(object):
     
-    def __init__(self, web_address ):
-        super().__init__( web_address )
-
+    def __init__(self, *args, **kwargs):
         adress = os.popen("i2cdetect -y -r 1 0x42 0x42 | egrep '42' | awk '{print $2}'").read()
         if(adress=='42\n'):
             self.ina = ina219.INA219(addr=0x42)
@@ -38,7 +30,6 @@ class DisplayServer(server.BaseHTTPRequestHandler):
         self.stats_thread = None
         self.stats_interval = 1.0
         self.enable_stats()
-    pass
         
     def _run_display_stats(self):
         Charge = False
@@ -102,8 +93,6 @@ class DisplayServer(server.BaseHTTPRequestHandler):
             self.display.display()
     
             time.sleep(self.stats_interval)
-        pass
-    pass
             
     def enable_stats(self):
         # start stats display thread
@@ -111,8 +100,6 @@ class DisplayServer(server.BaseHTTPRequestHandler):
             self.stats_enabled = True
             self.stats_thread = threading.Thread(target=self._run_display_stats)
             self.stats_thread.start()
-        pass
-    pass
         
     def disable_stats(self):
         self.stats_enabled = False
@@ -121,7 +108,6 @@ class DisplayServer(server.BaseHTTPRequestHandler):
         self.draw.rectangle((0, 0, self.image.width, self.image.height), outline=0, fill=0)
         self.display.image(self.image)
         self.display.display()
-    pass
 
     def set_text(self, text):
         self.disable_stats()
@@ -135,33 +121,33 @@ class DisplayServer(server.BaseHTTPRequestHandler):
         
         self.display.image(self.image)
         self.display.display()
-    pass
+        
 
-    def do_GET(self):
-        if self.path == '/stats/on':
-            self.enable_stats()
-            return "stats enabled"
-        elif self.path == '/stats/off':
-            self.disable_stats()
-            return "stats disabled"
-        elif '/text/' in self.path :
-            params = urllib.parse.parse_qs( self.path )
-            
-            text = ""
-            
-            if "text" in params :
-                text = params[ "text" ][0]
-            pass
+server = DisplayServer()
+app = Flask(__name__)
 
-            self.set_text( text )
-            return f'set text: \n\n{text}'
-        pass
-    pass
 
-pass # DisplayServer
+@app.route('/stats/on')
+def enable_stats():
+    global server
+    server.enable_stats()
+    return "stats enabled"
+
+    
+@app.route('/stats/off')
+def disable_stats():
+    global server
+    server.disable_stats()
+    return "stats disabled"
+
+
+@app.route('/text/<text>')
+def set_text(text):
+    global server
+    server.set_text(text)
+    return 'set text: \n\n%s' % text
+
 
 if __name__ == '__main__':
-    address = ('', 8000)
-    server = DisplayServer( address )
-    server.serve_forever()
+    app.run(host='0.0.0.0', port='8000', debug=False)
 
