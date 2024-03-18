@@ -176,6 +176,7 @@ class WebHandler(server.BaseHTTPRequestHandler):
 pass # WebHandler
 
 if __name__ == '__main__':
+    print( f"ups display server v1.0.00", flush=1 )
     address = ('', 8000)
     server = WebServer( address, WebHandler )
     server.serve_forever()
