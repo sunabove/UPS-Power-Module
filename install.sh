@@ -8,7 +8,7 @@ password=$1
 echo $password | sudo -S usermod -aG i2c $USER
 
 # install pip and some apt dependencies
-echo $password | sudo -S apt-get update
+#echo $password | sudo -S apt-get update
 echo $password | sudo -S apt install -y python3-pip python3-pil python3-smbus
 
 # install ups_display

@@ -35,6 +35,7 @@ class DisplayServer(object):
         Charge = False
         while self.stats_enabled:
 
+            self.draw.rectangle((0, 0, self.image.width, self.image.height), outline=0, fill=1)
             self.draw.rectangle((0, 0, self.image.width, self.image.height), outline=0, fill=0)
 
             # set IP address
@@ -93,6 +94,8 @@ class DisplayServer(object):
             self.display.display()
     
             time.sleep(self.stats_interval)
+        pass
+    pass
             
     def enable_stats(self):
         # start stats display thread
