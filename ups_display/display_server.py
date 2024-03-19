@@ -47,8 +47,8 @@ class DisplayServer():
         self.font = PIL.ImageFont.load_default()
         self.image = PIL.Image.new('1', (self.display.width, self.display.height))
         self.draw = PIL.ImageDraw.Draw(self.image)
-        self.draw.rectangle((0, 0, self.image.width, self.image.height), outline=0, fill=1)
-        
+        self.draw.rectangle((0, 0, self.image.width, self.image.height), outline=0, fill=255)
+
         self.display.display()
         
         self.stats_enabled = False
