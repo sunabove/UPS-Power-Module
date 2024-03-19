@@ -43,14 +43,16 @@ class DisplayServer():
         self.display.begin()
         self.display.clear()
         self.display.display()
+        
         self.font = PIL.ImageFont.load_default()
         self.image = PIL.Image.new('1', (self.display.width, self.display.height))
         self.draw = PIL.ImageDraw.Draw(self.image)
-        self.draw.rectangle((0, 0, self.image.width, self.image.height), outline=0, fill=0)
+        self.draw.rectangle((0, 0, self.image.width, self.image.height), outline=0, fill=1)
+        
         self.stats_enabled = False
         self.stats_thread = None
         self.stats_interval = 1.0
-        self.enable_stats()
+        #self.enable_stats()
 
         print( "Done initing display server" , flush=1 )
     pass
@@ -188,7 +190,7 @@ class WebHandler(server.BaseHTTPRequestHandler):
 pass # WebHandler
 
 if __name__ == '__main__':
-    print( f"ups display server v1.0.00", flush=1 )
+    print( f"ups display server v1.0.01", flush=1 )
 
     if 1 :
         dispSever = DisplayServer()
