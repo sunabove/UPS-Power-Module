@@ -33,7 +33,7 @@ class DisplayServer():
         else:
             self.ina = None
         pass
-            
+
         display = Adafruit_SSD1306.SSD1306_128_32(rst=None, i2c_bus=1, gpio=1) 
 
         self.display = display
@@ -54,8 +54,8 @@ class DisplayServer():
         
         self.stats_enabled = False
         self.stats_thread = None
-        self.stats_interval = 1.0
-        #self.enable_stats()
+        self.stats_interval = 2.5
+        self.enable_stats()
 
         print( "Done initing display server" , flush=1 )
     pass
@@ -63,65 +63,90 @@ class DisplayServer():
     def run_display_stats(self):
         Charge = False
 
-        while self.stats_enabled:
-            self.draw.rectangle((0, 0, self.image.width, self.image.height), outline=0, fill=255)
-            self.draw.rectangle((0, 0, self.image.width, self.image.height), outline=0, fill=0)
+        idx = 0 
+        p = 0 
+        while self.stats_enabled :
+            idx += 1
 
-            # set IP address
-            top = -2
-            if ip_address('eth0') is not None:
-                self.draw.text((4, top), 'IP: ' + str(ip_address('eth0')), font=self.font, fill=255)
-            elif ip_address('wlan0') is not None:
-                self.draw.text((4, top), 'IP: ' + str(ip_address('wlan0')), font=self.font, fill=255)
-            else:
-                self.draw.text((4, top), 'IP: not available')
+            w = self.image.width
+            h = self.image.height
 
-            top = 6
-            power_mode_str = power_mode()
+            top = 0
+            line_no = -1
 
-            p = 0 
+            self.draw.rectangle((0, 0, w, h), outline=0, fill=0)
+            self.draw.rectangle((0, 0, w -1, h -1), outline=255, fill=0)
 
-            if(self.ina != None):
-                bus_voltage = self.ina.getBusVoltage_V()        # voltage on V- (load side)
-                current = self.ina.getCurrent_mA()                # current in mA
-                p = (bus_voltage - 6)/2.4*100
-                if(p > 100):p = 100
-                if(p < 0):p = 0
-                if(current > 30):
-                    Charge = not Charge
+            if idx%2 == 0 : 
+                # power state
+                line_no += 1
+                top = ( 2 + (h-2)/2*line_no )
+
+                power_mode_str = power_mode()
+
+                if(self.ina != None):
+                    bus_voltage = self.ina.getBusVoltage_V()        # voltage on V- (load side)
+                    current = self.ina.getCurrent_mA()                # current in mA
+                    p = (bus_voltage - 6)/2.4*100
+                    if(p > 100):p = 100
+                    if(p < 0):p = 0
+                    if(current > 30):
+                        Charge = not Charge
+                    else:
+                        Charge = False
+
+                    charge_state = "*" if Charge else "-"
+
+                    # power_mode_str + (" %.1fV")%bus_voltage + (" %.2fA")%(current/1000) + (" %2.0f%%")%p
+                    text = f"{charge_state} {power_mode_str} {bus_voltage:.1f}V {current/1000:.2f}A {p:2.0f}%"
+                    self.draw.text((4, top), text, font=self.font, fill=255)
                 else:
-                    Charge = False
+                    self.draw.text((4, top), 'MODE: ' + power_mode_str, font=self.font, fill=255)
+                pass
+            
+                # show IP address
+                line_no += 1
+                top = ( 2 + (h-2)/2*line_no )
 
-                if(Charge == False):
-                    self.draw.text((600, -2), ' ', font=self.font, fill=255)
+            
+                if ip_address('eth0') is not None:
+                    self.draw.text((4, top), '- IP: ' + str(ip_address('eth0')), font=self.font, fill=255)
+                elif ip_address('wlan0') is not None:
+                    self.draw.text((4, top), '- IP: ' + str(ip_address('wlan0')), font=self.font, fill=255)
                 else:
-                    self.draw.text((120, -2), '*', font=self.font, fill=255)
-                self.draw.text((4, top), power_mode_str + (" %.1fV")%bus_voltage + (" %.2fA")%(current/1000) + (" %2.0f%%")%p, font=self.font, fill=255)
-            else:
-                self.draw.text((4, top), 'MODE: ' + power_mode_str, font=self.font, fill=255)
-            
-            # set stats headers
-            top = 14
-            offset = 3 * 8
-            headers = ['PWR', 'CPU', 'GPU', 'RAM', 'DSK']
-            for i, header in enumerate(headers):
-                self.draw.text((i * offset + 4, top), header, font=self.font, fill=255)
+                    self.draw.text((4, top), '- IP: not available')
+                pass 
+            else :  
+                # set IP address
+                line_no += 1
+                top = ( 2 + (h-2)/2*line_no )
 
-            # set stats fields
-            top = 22
-            power_watts = '%.1f' % p
-            gpu_percent = '%02d%%' % int(round(gpu_usage() * 100.0, 1))
-            cpu_percent = '%02d%%' % int(round(cpu_usage() * 100.0, 1))
-            ram_percent = '%02d%%' % int(round(memory_usage() * 100.0, 1))
-            disk_percent = '%02d%%' % int(round(disk_usage() * 100.0, 1))
-            
-            entries = [power_watts, cpu_percent, gpu_percent, ram_percent, disk_percent]
-            for i, entry in enumerate(entries):
-                self.draw.text((i * offset + 4, top), entry, font=self.font, fill=255)
+                offset = 3 * 8
+                headers = ['PWR', 'CPU', 'GPU', 'RAM', 'DSK']
+
+                text = " ".join( headers )
+                self.draw.text((4, top), text, font=self.font, fill=255) 
+
+                # set stats fields
+                line_no += 1
+                top = ( 2 + (h-2)/2*line_no )
+
+                power_watts  = '%.1f' % p
+                gpu_percent  = '%02d%%' % int(round(gpu_usage() * 100.0, 1))
+                cpu_percent  = '%02d%%' % int(round(cpu_usage() * 100.0, 1))
+                ram_percent  = '%02d%%' % int(round(memory_usage() * 100.0, 1))
+                disk_percent = '%02d%%' % int(round(disk_usage() * 100.0, 1))
+                
+                entries = [power_watts, cpu_percent, gpu_percent, ram_percent, disk_percent]
+
+                text = " ".join( entries )
+                self.draw.text((4, top), text, font=self.font, fill=255)  
             pass
 
-            self.display.image(self.image)
+            self.display.image( self.image )
             self.display.display()
+
+            if 0 : print( f"idx = {idx}", flush=1 )
     
             time.sleep(self.stats_interval)
         pass
@@ -162,7 +187,7 @@ pass # DisplayServer
 
 class WebHandler(server.BaseHTTPRequestHandler):
 
-    displayServer = None
+    displayServer = DisplayServer()
 
     def do_GET(self):
         if self.displayServer is None :
@@ -196,8 +221,8 @@ pass # WebHandler
 if __name__ == '__main__':
     print( f"ups display server v1.0.01", flush=1 )
 
-    if 1 :
-        dispSever = DisplayServer()
+    if 0 :
+        pass
     elif 1 :
         address = ('', 8000)
         server = WebServer( address, WebHandler )
