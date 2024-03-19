@@ -49,6 +49,7 @@ class DisplayServer():
         self.draw = PIL.ImageDraw.Draw(self.image)
         self.draw.rectangle((0, 0, self.image.width, self.image.height), outline=0, fill=255)
 
+        self.display.image(self.image)
         self.display.display()
         
         self.stats_enabled = False
@@ -117,6 +118,7 @@ class DisplayServer():
             entries = [power_watts, cpu_percent, gpu_percent, ram_percent, disk_percent]
             for i, entry in enumerate(entries):
                 self.draw.text((i * offset + 4, top), entry, font=self.font, fill=255)
+            pass
 
             self.display.image(self.image)
             self.display.display()
