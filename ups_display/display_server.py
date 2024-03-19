@@ -156,9 +156,13 @@ pass # DisplayServer
 
 class WebHandler(server.BaseHTTPRequestHandler):
 
-    displayServer = DisplayServer()
+    displayServer = None
 
     def do_GET(self):
+        if self.displayServer is None :
+            self.displayServer = DisplayServer()
+        pass
+
         if self.path == '/stats/on':
             self.displayServer.enable_stats()
             return "stats enabled"
