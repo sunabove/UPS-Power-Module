@@ -49,6 +49,8 @@ class DisplayServer():
         self.draw = PIL.ImageDraw.Draw(self.image)
         self.draw.rectangle((0, 0, self.image.width, self.image.height), outline=0, fill=1)
         
+        self.display.display()
+        
         self.stats_enabled = False
         self.stats_thread = None
         self.stats_interval = 1.0
