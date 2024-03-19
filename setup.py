@@ -6,6 +6,8 @@ setup(
     description='Easily make projects with NVIDIA Jetson Nano',
     packages=find_packages(),
     install_requires=[
-        'Adafruit_SSD1306'
+        'Adafruit_SSD1306',
+        'pillow',
+        'smbus',
     ],
 )

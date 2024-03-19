@@ -26,13 +26,20 @@ class DisplayServer():
     
     def __init__( self ):
         print( "Initing display server ..." , flush=1 )
+
         adress = os.popen("i2cdetect -y -r 1 0x42 0x42 | egrep '42' | awk '{print $2}'").read()
         if(adress=='42\n'):
             self.ina = ina219.INA219(addr=0x42)
         else:
             self.ina = None
+        pass
             
-        self.display = Adafruit_SSD1306.SSD1306_128_32(rst=None, i2c_bus=1, gpio=1) 
+        display = Adafruit_SSD1306.SSD1306_128_32(rst=None, i2c_bus=1, gpio=1) 
+
+        self.display = display
+
+        print( f"display width = {display.width}, height = {display.height}", flush=1 )
+
         self.display.begin()
         self.display.clear()
         self.display.display()
@@ -48,10 +55,10 @@ class DisplayServer():
         print( "Done initing display server" , flush=1 )
     pass
         
-    def _run_display_stats(self):
+    def run_display_stats(self):
         Charge = False
-        while self.stats_enabled:
 
+        while self.stats_enabled:
             self.draw.rectangle((0, 0, self.image.width, self.image.height), outline=0, fill=255)
             self.draw.rectangle((0, 0, self.image.width, self.image.height), outline=0, fill=0)
 
@@ -118,7 +125,7 @@ class DisplayServer():
         # start stats display thread
         if not self.stats_enabled:
             self.stats_enabled = True
-            self.stats_thread = threading.Thread(target=self._run_display_stats)
+            self.stats_thread = threading.Thread(target=self.run_display_stats)
             self.stats_thread.start()
         pass
     pass
@@ -178,8 +185,14 @@ pass # WebHandler
 
 if __name__ == '__main__':
     print( f"ups display server v1.0.00", flush=1 )
-    address = ('', 8000)
-    server = WebServer( address, WebHandler )
-    server.serve_forever()
+
+    if 1 :
+        dispSever = DisplayServer()
+    elif 1 :
+        address = ('', 8000)
+        server = WebServer( address, WebHandler )
+        server.serve_forever()
+    pass
+
 pass
 

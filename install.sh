@@ -16,6 +16,7 @@ echo $password | sudo -S python3 setup.py install
 
 # install UPS_Power_Module display service
 python3 -m ups_display.create_display_service
+
 echo $password | sudo -S mv ups_display.service /etc/systemd/system/ups_display.service
 echo $password | sudo -S systemctl enable ups_display
 echo $password | sudo -S systemctl start ups_display
