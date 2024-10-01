@@ -1,3 +1,0 @@
-Adafruit_SSD1306
-pillow
-smbus
