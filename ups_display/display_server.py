@@ -98,7 +98,7 @@ class DisplayServer():
                     charge_state = "*" if Charge else "-"
 
                     # power_mode_str + (" %.1fV")%bus_voltage + (" %.2fA")%(current/1000) + (" %2.0f%%")%p
-                    text = f"{charge_state} {power_mode_str} {bus_voltage:.1f}V {current/1000:.2f}A {p:2.0f}%"
+                    text = f"{charge_state} {power_mode_str} {bus_voltage:.1f}V {current/1000:.2f}A"
                     self.draw.text((4, top), text, font=self.font, fill=255)
                 else:
                     self.draw.text((4, top), 'MODE: ' + power_mode_str, font=self.font, fill=255)
