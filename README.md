@@ -1,16 +1,15 @@
 # UPS Power Module
 
-UPS Power Module is a system server to display the UPS Power Module's power (and other stats)
-
-If you find an issue, please [let us know](../..//issues)!
+UPS Power Module is a system server to display the UPS Power Module's power (and other stats).
 
 ## Setup
+```
+./install.sh <password>
+```
 
-Follow the steps below to download UPS-Power-Moduledirectly or create it from scratch.
-
-On the jetson nano, run the ups-display installation script
-
-    git clone https://github.com/waveshare/UPS-Power-Module
-    cd UPS-Power-Module
-    ./install.sh <password>
-
+## To refresh startup service after modifying *display_server.py*:
+```
+sudo systemctl stop ups_display.service
+sudo python3 setup.py install
+sudo systemctl start ups_display.service
+```
